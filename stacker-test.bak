@@ -2,8 +2,8 @@
 ;; Current expression:
 ;; * (25 * 57) / (38 * 47) * 248 + (11 - 2)
 ;; Expected outcome:
-;; * 206.872340426 ~= 9723/47
-#lang reader "funstacker.rkt"
+;; * 206.872340426
+#lang reader "stacker.rkt"
 25
 57
 *
