@@ -34,62 +34,45 @@
 
 ;; Define expander macro stacker-module-begin
 ;; - Takes in the pattern variable HANDLE-EXPR
-(define-macro (stacker-module-begin HANDLE-EXPR ...)
+(define-macro (funstacker-module-begin HANDLE-ARGS-EXPR)
 
   ;; Defines return syntax object
   ;; - #' captures the current lexical context (available variables)
   #'(#%module-begin
-     ;; Handle all expressions on the stack
-     HANDLE-EXPR ...
-     ;; Display the first value of the stack, after all handling
-     (display (first stack))))
+     ;; Display the argument, after all nested handling
+     (display (first HANDLE-ARGS-EXPR))))
 
 ;; Makes the macro syntax publicly available outside
-(provide (rename-out [stacker-module-begin #%module-begin]))
+(provide (rename-out [funstacker-module-begin #%module-begin]))
 
-;; Creates an empty list stack
-(define stack empty)
+;; Defines a handler function that emulates stack functionality
+;; - Defines `args` as a rest (optional all-enclosing) argument
+(define (handle-args . args)
 
-;; Defines a pop func to remove the top argument
-(define (pop-stack!)
+  ;; Iterate over the list of values
+  (for/fold ([stack-acc empty])
 
-  ;; Gets the first of the stack, assigning to arg
-  (define arg (first stack))
+            ;; Iterate over the arguments
+            ([arg (in-list args)]
+             #:unless (void? arg))
 
-  ;; Set the stack equal to the rest of the arguments
-  (set! stack (rest stack))
+    ;; Handles argument between operators or numbers
+    (cond
 
-  ;; Returns arg
-  arg)
+      ;; If a number, put on stack
+      [(number? arg) (cons arg stack-acc)]
 
-;; Defines a push func to add a new argument
-(define (push-stack! arg)
+      ;; Otherwise, handle it by evaluating the expression
+      [(or (equal? + arg) (equal? - arg) (equal? * arg) (equal? / arg))
+       (define op-result
+         ;; Ordering for specific division/subtraction functionality
+         (arg (second stack-acc) (first stack-acc)))
 
-  ;; Sets the stack to a construction of the arg and the stack
-  (set! stack (cons arg stack)))
-
-;; Defines our handler function
-(define (handle [arg #f])
-
-  ;; Introduce a conditional expression with two branches
-  (cond
-    
-    ;; Branch 1 - If the argument is a number, push it to the stack
-    [(number? arg) (push-stack! arg)]
-
-    ;; Branch 2 - If the argument is addition or multiplication, calculate
-    [(or (equal? + arg) (equal? - arg) (equal? * arg) (equal? / arg))
-     
-     ;; Pop the stack twice and calculate the expression in proper order
-     (define popRHS (pop-stack!))
-     (define popLHS (pop-stack!))
-     (define op-result (arg popLHS popRHS))
-     
-     ;; Push this value back to the stack
-     (push-stack! op-result)]))
+       ;; Explicitly drop two items from the stack, then add it again
+       (cons op-result (drop stack-acc 2))])))
 
 ;; Makes the handler function publicly available
-(provide handle)
+(provide handle-args)
 
 ;; Provide bindings for + and * operations from br/quicklang
 (provide + - * /)

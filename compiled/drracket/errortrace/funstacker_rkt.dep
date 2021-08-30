@@ -1,1 +1,1 @@
-("8.2" ta6nt ("6cbdc405d4f6ba9a32be346ca87f52bd98b2cc88" . "bd327b48d80ebb04f6caf83d737ff618440dad7f") (collects #"br" #"quicklang.rkt") (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"runtime-config.rkt"))
+("8.2" ta6nt ("2422f59689b0a66a7d514272a7dd30a47c3fe440" . "bd327b48d80ebb04f6caf83d737ff618440dad7f") (collects #"br" #"quicklang.rkt") (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"runtime-config.rkt"))
